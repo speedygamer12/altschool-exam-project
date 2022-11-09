@@ -1,0 +1,61 @@
+---
+- name: "update apt packages"
+  become: yes
+  apt: 
+    update_cache: yes
+
+- name: "upgrade packages"
+  become: yes
+  apt: 
+    upgrade: yes
+
+- name: Installing dependencies
+  package:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  loop:
+    - git 
+    - wget
+    - zip
+    - unzip
+
+- name: "install apache2"
+  become: yes
+  apt:
+    name: "apache2"
+    state: latest
+    update_cache: yes
+
+- name: Start apache2
+  service:
+    name: apache2
+    enabled: yes
+    state: started
+
+- name: php  prerequisites
+  command: apt install apt-transport-https lsb-release software-properties-common ca-certificates -y
+
+- name: install using ppa:ondrej/php repository
+  command: add-apt-repository ppa:ondrej/php -y
+
+- name: install php8.1
+  command: apt install php8.1 libapache2-mod-php php8.1-dev php8.1-zip php8.1-curl \
+            php8.1-mbstring php8.1-mysql php8.1-gd php8.1-xml -y 
+
+# Composer
+
+- name: Download and install Composer
+  script: files/install-composer.sh
+
+- name: Move Composer globally
+  become: true
+  command: mv composer.phar /usr/local/bin/composer
+
+- name: Set permissions on Composer
+  become: true
+  file:
+    path: /usr/local/bin/composer
+    mode: "a+x"
+
+

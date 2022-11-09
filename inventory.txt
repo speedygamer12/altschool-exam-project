@@ -1,0 +1,2 @@
+[web]
+13.72.103.188 ansible_user=azureuser

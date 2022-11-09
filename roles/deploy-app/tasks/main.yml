@@ -1,0 +1,107 @@
+---
+- name: Clone the github repository
+  git:
+    repo: https://github.com/speedygamer12/laravel-realworld-example-app
+    dest: /var/www/html/laravel-realworld-example-app
+    clone: yes
+    update: yes
+
+- name: Copy Laravel Conf
+  become: true 
+  copy:
+    src: files/laravel.conf 
+    dest: /etc/apache2/sites-available/
+    # mode: 0644
+  
+- name: "Enable Apache rewrite module and activate the Laravel virtual host"
+  become: true
+  shell: |
+    a2enmod rewrite
+    a2ensite laravel.conf
+  notify:
+    - Restart Apache
+
+# Configure Php
+- name: Configure Php
+  lineinfile:
+      path: /etc/php/8.1/apache2/php.ini
+      regexp: '^cgi.fix_pathinfo=0'
+      line: 'cgi.fix_pathinfo=1'
+      backup: yes
+  notify:
+    - Restart Apache
+
+- name: "Copy env file"
+  copy:
+    src: files/.env
+    dest: /var/www/html/laravel-realworld-example-app/
+
+
+
+- name: Composer Download and installs all libs and dependencies 
+  community.general.composer:
+    command: install 
+    working_dir: /var/www/html/laravel-realworld-example-app 
+    arguments: no-dev
+  environment:
+    COMPOSER_ALLOW_SUPERUSER: 1
+
+- name: Update Composer
+  community.general.composer:
+    command: require 
+    arguments: fakerphp/faker
+    working_dir: /var/www/html/laravel-realworld-example-app 
+  environment:
+      COMPOSER_ALLOW_SUPERUSER: 1
+
+- name: Update Composer Install
+  community.general.composer:
+    command: update 
+    working_dir: /var/www/html/laravel-realworld-example-app 
+  environment:
+      COMPOSER_ALLOW_SUPERUSER: 1     
+
+- name: Set Laravel permissions
+  become: true
+  file:
+    path: "{{item}}"
+    mode: "775"
+  with_items:
+    - /var/www/html/laravel-realworld-example-app
+    - /var/www/html/laravel-realworld-example-app/storage
+    - /var/www/html/laravel-realworld-example-app/bootstrap/cache
+
+- name: Set Laravel file owner
+  become: true
+  file:
+    path: "{{item}}"
+    owner: www-data
+  with_items:
+    - /var/www/html/laravel-realworld-example-app
+
+- name: Complete Laravel Installation
+  become: true
+  command: php artisan key:generate
+  args:
+    chdir: /var/www/html/laravel-realworld-example-app
+
+- name: Replace the routes file
+  copy:
+    src: files/web.php
+    dest: /var/www/html/laravel-realworld-example-app/routes/web.php
+
+- name: Configure App
+  become: true
+  shell: |
+    php artisan config:cache
+    a2dissite 000-default.conf
+    rm /etc/apache2/sites-available/000-default.conf
+    a2ensite laravel.conf
+    php artisan migrate --seed
+
+  args:
+    chdir: /var/www/html/laravel-realworld-example-app
+    
+  notify:
+    - Restart Apache  
+
