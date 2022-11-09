@@ -2,6 +2,8 @@
 
 ### What is this?
 A PHP Laravel App 
+Endpoints: http://www.yusufgiwa.me/api/tags, http://www.yusufgiwa.me/api/tags
+
 
 > Run in terminal:
 * Ping server: ` ansible web --private-key exam-server_key.pem -m ping -i inventory.txt `   
