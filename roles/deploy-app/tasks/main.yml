@@ -66,6 +66,7 @@
   file:
     path: "{{item}}"
     mode: "775"
+    recurse: true
   with_items:
     - /var/www/html/laravel-realworld-example-app
     - /var/www/html/laravel-realworld-example-app/storage
@@ -76,6 +77,7 @@
   file:
     path: "{{item}}"
     owner: www-data
+    recurse: true
   with_items:
     - /var/www/html/laravel-realworld-example-app
 

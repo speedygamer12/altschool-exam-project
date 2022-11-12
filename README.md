@@ -2,7 +2,7 @@
 
 ### What is this?
 A PHP Laravel App 
-Endpoints: http://www.yusufgiwa.me/api/tags, http://www.yusufgiwa.me/api/tags
+Endpoints: http://www.yusufgiwa.me/api/tags, http://www.yusufgiwa.me/api/articles
 
 
 > Run in terminal:
