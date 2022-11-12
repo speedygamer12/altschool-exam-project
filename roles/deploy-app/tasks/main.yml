@@ -42,7 +42,7 @@
   community.general.composer:
     command: install 
     working_dir: /var/www/html/laravel-realworld-example-app 
-    arguments: no-dev
+    arguments: --no-dev
   environment:
     COMPOSER_ALLOW_SUPERUSER: 1
 
